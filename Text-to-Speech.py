@@ -1,3 +1,4 @@
+import json
 import os
 import requests
 import time
@@ -21,7 +22,7 @@ class TextToSpeech(object):
         '''
         subscription_keyからaccess_tokenを取得
         '''
-        fetch_token_url = "https://japaneast.api.cognitive.microsoft.com/sts/v1.0/issueToken"
+        fetch_token_url = "https://japaneast.api.cognitive.microsoft.com/sts/v1.0/issuetoken"
         headers = {
             'Ocp-Apim-Subscription-Key': self.subscription_key
         }
@@ -29,11 +30,11 @@ class TextToSpeech(object):
         self.access_token = str(response.text)
 
     def save_audio(self):
-        base_url = "http://japaneast.tts.speech.microsoft.com/"
-        path = "cognitiveservices/v1"
+        base_url = 'https://japaneast.tts.speech.microsoft.com/'
+        path = 'cognitiveservices/v1'
         constructed_url = base_url + path
         headers = {
-            "Authorization": "Bearer " + self.access_token,
+            'Authorization': 'Bearer ' + self.access_token,
             'Content-Type': 'application/ssml+xml',
             'X-Microsoft-OutputFormat': 'riff-24khz-16bit-mono-pcm',
             'User-Agent': self.resource_name
@@ -56,3 +57,13 @@ class TextToSpeech(object):
         else:
             print("\nStatus code: " + str(response.status_code) +
                   "\nSomething went wrong. Check your subscription key and headers.\n")
+
+
+if __name__ == "__main__":
+    with open("./subscription_key.json", "r") as f:
+        json_load = json.load(f)
+    subscription_key = json_load["key"]
+    resource = json_load["resource"]
+    app = TextToSpeech(subscription_key, resource)
+    app.get_token()
+    app.save_audio()
